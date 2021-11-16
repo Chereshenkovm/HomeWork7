@@ -160,14 +160,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce954f8ee64e45cb832586d939942063, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _botDifficulty: 3
   _rockPrefab: {fileID: 2473753028062623052, guid: 38d3d8590a7947940ab62d5f40693322,
     type: 3}
   ZombieInput: {fileID: -8151299231423248787}
   Rigidbody: {fileID: 54461488628131348}
-  ZombieSpeed: 6
+  ZombieSpeed: 3
   _aliveView: {fileID: 1131526549626236}
   _diedView: {fileID: 7750346275728890811}
-  _speed: 6
   _rigidbody: {fileID: 54461488628131348}
   _deltaPath: []
 --- !u!114 &-8151299231423248787
