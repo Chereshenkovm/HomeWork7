@@ -1,48 +1,66 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.AI;
+using NavMeshBuilder = UnityEditor.AI.NavMeshBuilder;
 
 namespace Game
 {
     public class LevelMap : MonoBehaviour
     {
+        public LevelConfig level;
+        
         [SerializeField] private GameObject _prefab;
 
         [SerializeField] private Transform _root;
+        [SerializeField] private Transform _zombieRoot;
+        [SerializeField] private Transform _rockRoot;
 
-        [SerializeField] private List<Vector3> _points;
+        [SerializeField] private Transform _player;
 
-        public IReadOnlyList<Vector3> Points => _points;
-
-        [MenuItem("CONTEXT/LevelMap/Instantiate Points")]
-        private static void InstantiatePoints(MenuCommand command)
+        [ContextMenu("Clear Map")]
+        public void Clear()
         {
-            Clear(command);
-            
-            var levelMap = command.context as LevelMap;
-            if (levelMap == null)
-                return;
-
-            foreach (var p in levelMap._points.Distinct())
-            {
-                var prefab = PrefabUtility.InstantiatePrefab(levelMap._prefab, levelMap._root) as GameObject;
-                prefab.transform.position = p;
+            while(_root.childCount>0){
+                DestroyImmediate(_root.GetChild(0).gameObject);
+            }
+            while(_zombieRoot.childCount>0){
+                DestroyImmediate(_zombieRoot.GetChild(0).gameObject);
+            }
+            while(_rockRoot.childCount>0){
+                DestroyImmediate(_rockRoot.GetChild(0).gameObject);
             }
         }
-        
-        [MenuItem("CONTEXT/LevelMap/Clear Points")]
-        private static void Clear(MenuCommand command)
+
+        [ContextMenu("Instantiate From Map")]
+        public void InstantFromMap()
         {
-            var levelMap = command.context as LevelMap;
-            if (levelMap == null)
-                return;
-            
-            var count = levelMap._root.childCount;
-            for (var i = count - 1; i >= 0; i--)
+            Clear();
+            foreach (var wall in level.Walls)
             {
-                DestroyImmediate(levelMap._root.GetChild(i).gameObject);
+                var _gameObject = PrefabUtility.InstantiatePrefab(wall._object, _root) as GameObject;
+                _gameObject.transform.position = wall._position;
             }
+            
+            foreach (var zombie in level.Zombies)
+            {
+                var _gameObject = PrefabUtility.InstantiatePrefab(zombie._zombie, _zombieRoot) as GameObject;
+                _gameObject.transform.position = zombie._position;
+                _gameObject.GetComponent<ZombieComponent>()._botDifficulty = zombie._Difficulty;
+            }
+            
+            foreach (var rock in level.Rocks)
+            {
+                var _gameObject = PrefabUtility.InstantiatePrefab(rock._object, _rockRoot) as GameObject;
+                _gameObject.transform.position = rock._position;
+            }
+
+            _player.position = level._spawnPoint;
+            
+            NavMeshBuilder.ClearAllNavMeshes();
+            NavMeshBuilder.BuildNavMesh();
         }
     }
 }

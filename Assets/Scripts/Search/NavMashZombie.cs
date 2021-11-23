@@ -17,7 +17,13 @@ public class NavMashZombie : ZombieInput
     private Transform _rockTr;
     private bool rocksEx = false;
     private bool found = false;
-    
+
+    private void Awake()
+    {
+        _player = transform.parent.GetComponent<PlayerContainer>().GetPlayerTransform();
+        _rockMap = transform.parent.GetComponent<PlayerContainer>().GetRockMap();
+    }
+
     public override (Vector3 moveDirection, Vector3 distance, Quaternion viewDirection, bool found) CurrentInput()
     {
         found = false;

@@ -8,8 +8,8 @@ namespace Game
 {
     public class ZombieComponent : MonoBehaviour
     {
-        [Header("ZombieAIDifficulty")] [SerializeField]
-        private BotDifficulty _botDifficulty = BotDifficulty.HARD;
+        [Header("ZombieAIDifficulty")]
+        public BotDifficulty _botDifficulty = BotDifficulty.HARD;
         [Header("Rock Prefab")]
         [SerializeField] private GameObject _rockPrefab;
         
@@ -27,8 +27,6 @@ namespace Game
         [SerializeField] private GameObject _diedView;
 
         [SerializeField] private Rigidbody _rigidbody;
-
-        [SerializeField] private Vector3[] _deltaPath;
 
         private int _currentPoint = 0;
         private Vector3 _initPosition;
@@ -61,9 +59,6 @@ namespace Game
 
         private void Update()
         {
-            if (_deltaPath == null || _deltaPath.Length < 2)
-                return;
-
             if (IsAlive)
             {
                 var (moveDirection, distance, viewDirection,hasFound) = ZombieInput.CurrentInput();
@@ -71,20 +66,20 @@ namespace Game
 
                 switch (getActionName(distance, rockDistance, hasFound, isThereRocks, _botDifficulty))
                 {
-                    case "player":
+                    case ActionName.PLAYER:
                         Rigidbody.velocity = moveDirection.normalized * ZombieSpeed;
                         transform.rotation = viewDirection;
                         break;
-                    case "rock":
+                    case ActionName.ROCK:
                         Rigidbody.velocity = moveRockDirection.normalized * ZombieSpeed;
                         break;
-                    case "pickRock":
+                    case ActionName.PICKROCK:
                         takeRock(rockTrans);
                         break;
-                    case "throwRock":
+                    case ActionName.THROWROCK:
                         throwRock(distance);
                         break;
-                    case "hitPlayer":
+                    case ActionName.HITPLAYER:
                         Rigidbody.velocity = Vector3.zero;
                         hitPlayer();
                         break;
@@ -101,7 +96,7 @@ namespace Game
 
         public bool IsAlive => _aliveView.activeInHierarchy;
 
-        private string getActionName(Vector3 playerDist, float rockDist, bool foundPlayer, bool rocksExist, BotDifficulty bDiff)
+        private ActionName getActionName(Vector3 playerDist, float rockDist, bool foundPlayer, bool rocksExist, BotDifficulty bDiff)
         {
             List<int> pointsAc = new List<int> {0, 0, 0, 0, 0};
 
@@ -115,23 +110,23 @@ namespace Game
             switch (pointsAc.IndexOf(pointsAc.Max()))
             {
                 case 0:
-                    return "player";
+                    return ActionName.PLAYER;
                     break;
                 case 1:
-                    return "rock";
+                    return ActionName.ROCK;
                     break;
                 case 2:
-                    return "pickRock";
+                    return ActionName.PICKROCK;
                     break;
                 case 3:
-                    return "throwRock";
+                    return ActionName.THROWROCK;
                     break;
                 case 4:
-                    return "hitPlayer";
+                    return ActionName.HITPLAYER;
                     break;
             }
 
-            return "player";
+            return ActionName.PLAYER;
         }
 
         private void hitPlayer()
