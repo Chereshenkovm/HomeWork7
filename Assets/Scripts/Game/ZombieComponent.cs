@@ -27,13 +27,11 @@ namespace Game
         [SerializeField] private GameObject _diedView;
 
         [SerializeField] private Rigidbody _rigidbody;
-
-        private int _currentPoint = 0;
+        
         private Vector3 _initPosition;
         private float HitTime = 1f;
         private float _hitTimer = 0f;
         private bool hasRock = false;
-        private string currentTask = "";
 
         private void Awake()
         {
@@ -41,7 +39,7 @@ namespace Game
             switch (_botDifficulty)
             {
                 case BotDifficulty.EASY:
-                    ZombieSpeed = ZombieSpeed;
+                    ZombieSpeed = ZombieSpeed * 1;
                     break;
                 case BotDifficulty.MEDIUM:
                     ZombieSpeed = ZombieSpeed * 1.5f;
@@ -62,9 +60,9 @@ namespace Game
             if (IsAlive)
             {
                 var (moveDirection, distance, viewDirection,hasFound) = ZombieInput.CurrentInput();
-                var (moveRockDirection, rockDistance, rockTrans,isThereRocks) = ZombieInput.GetRock();
+                var (moveRockDirection, rockDistance, rockTrans,isThereRocks, isThereReachableRock) = ZombieInput.GetRock();
 
-                switch (getActionName(distance, rockDistance, hasFound, isThereRocks, _botDifficulty))
+                switch (getActionName(distance, rockDistance, hasFound, isThereRocks, _botDifficulty, isThereReachableRock))
                 {
                     case ActionName.PLAYER:
                         Rigidbody.velocity = moveDirection.normalized * ZombieSpeed;
@@ -96,14 +94,14 @@ namespace Game
 
         public bool IsAlive => _aliveView.activeInHierarchy;
 
-        private ActionName getActionName(Vector3 playerDist, float rockDist, bool foundPlayer, bool rocksExist, BotDifficulty bDiff)
+        private ActionName getActionName(Vector3 playerDist, float rockDist, bool foundPlayer, bool rocksExist, BotDifficulty bDiff, bool reachable)
         {
             List<int> pointsAc = new List<int> {0, 0, 0, 0, 0};
 
-            pointsAc[0] = (playerDist.magnitude <= 10 ? 50 : 0) + (!rocksExist ? 100 : 0) + (hasRock ? 100: 0);
+            pointsAc[0] = (playerDist.magnitude <= 10 ? 50 : 0) + (!rocksExist ? 100 : 0) + (hasRock ? 100: 0) + (!reachable ? 100 : 0);
             pointsAc[1] = (playerDist.magnitude > 10 ? 150 : 0) + (rockDist <= 10 ? 50 : 0) + (hasRock ? -1000 : 0) +
-                          (!rocksExist ? -1000 : 0) + (bDiff == BotDifficulty.HARD ? 0 : -10000);
-            pointsAc[2] = (rockDist < 1f ? 1000 : 0) + (hasRock ? -1000 : 0) + (bDiff == BotDifficulty.HARD ? 0 : -10000);
+                          (!rocksExist ? -1000 : 0) + (bDiff == BotDifficulty.HARD ? 0 : -10000) + (!reachable ? -1000 : 0);
+            pointsAc[2] = (rockDist < 1f ? 1000 : 0) + (hasRock ? -1000 : 0) + (bDiff == BotDifficulty.HARD ? 0 : -10000) + (!reachable ? -1000 : 0);
             pointsAc[3] = (playerDist.magnitude < 5 ? 200 : 0) + (hasRock ? 100 : -1000) + (bDiff == BotDifficulty.HARD ? 0 : -10000);
             pointsAc[4] = (playerDist.magnitude <= 1f ? 1001 : 0) + (bDiff == BotDifficulty.EASY ? -10000 : 0);
 
@@ -111,19 +109,14 @@ namespace Game
             {
                 case 0:
                     return ActionName.PLAYER;
-                    break;
                 case 1:
                     return ActionName.ROCK;
-                    break;
                 case 2:
                     return ActionName.PICKROCK;
-                    break;
                 case 3:
                     return ActionName.THROWROCK;
-                    break;
                 case 4:
                     return ActionName.HITPLAYER;
-                    break;
             }
 
             return ActionName.PLAYER;

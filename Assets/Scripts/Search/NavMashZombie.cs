@@ -17,6 +17,7 @@ public class NavMashZombie : ZombieInput
     private Transform _rockTr;
     private bool rocksEx = false;
     private bool found = false;
+    private bool canReach = false;
 
     private void Awake()
     {
@@ -35,16 +36,19 @@ public class NavMashZombie : ZombieInput
         return (path.corners[1]-path.corners[0], path.corners[path.corners.Length-1] - path.corners[0], Quaternion.LookRotation(path.corners[path.corners.Length-1]), found);
     }
 
-    public override (Vector3 moveRockDirection, float clDistance, Transform rock, bool rocksExist) GetRock()
+    public override (Vector3 moveRockDirection, float clDistance, Transform rock, bool rocksExist, bool reachableRockExist) GetRock()
     {
         closestDistance = 100;
         path2 = new NavMeshPath();
+        canReach = false;
         
         if (_rockMap.RockTransforms().Capacity != 0)
         {
             foreach (var rocks in _rockMap.RockTransforms())
             {
                 NavMesh.CalculatePath(transform.position, rocks.position, NavMesh.AllAreas, path2);
+                if(path2.status == NavMeshPathStatus.PathInvalid)
+                    continue;
                 distance = calcDistance(path2.corners);
                 if (distance < closestDistance)
                 {
@@ -52,6 +56,8 @@ public class NavMashZombie : ZombieInput
                     closestRockDirection = path2.corners[1] - path2.corners[0];
                     _rockTr = rocks;
                 }
+
+                canReach = true;
             }
 
             rocksEx = true;
@@ -61,7 +67,9 @@ public class NavMashZombie : ZombieInput
             rocksEx = false;
         }
 
-        return (closestRockDirection, closestDistance, _rockTr, rocksEx);
+        if (closestRockDirection == null)
+            return (Vector3.zero, 0, _rockTr, rocksEx, canReach);
+        return (closestRockDirection, closestDistance, _rockTr, rocksEx, canReach);
     }
 
     private static float calcDistance(Vector3[] list)
