@@ -59,7 +59,7 @@ public class LevelController : MonoBehaviour
         }
     }
 
-    [ContextMenu("SpawnMainWalls")]
+    [ContextMenu("Spawn Boarders")]
     public void SpawnMainWall()
     {
         for (int i = -12; i <= 12; i++)
@@ -80,28 +80,28 @@ public class LevelController : MonoBehaviour
         }
     }
     
-    [ContextMenu("SpawnWall")]
+    [ContextMenu("Spawn 1 Wall")]
     public void SpawnWall()
     {
         var _gameObject = PrefabUtility.InstantiatePrefab(_wallPrefab, _wallRoot) as GameObject;
         _gameObject.transform.position = new Vector3(0, 1, 0) + new Vector3(-20, 0, 0);
     }
 
-    [ContextMenu("SpawnZombie")]
+    [ContextMenu("Spawn Zombie")]
     public void SpawnZombie()
     {
         var _gameObject = PrefabUtility.InstantiatePrefab(_zombiePrefab, _zombieRoot) as GameObject;
         _gameObject.transform.position = new Vector3(0, 0, 0);
     }
     
-    [ContextMenu("SpawnRock")]
+    [ContextMenu("Spawn Rock")]
     public void SpawnRock()
     {
         var _gameObject = PrefabUtility.InstantiatePrefab(_rockPrefab, _rockRoot) as GameObject;
         _gameObject.transform.position = new Vector3(0, 0.1f, 0);
     }
     
-    [ContextMenu("SpawnLine5")]
+    [ContextMenu("Spawn 5 Walls in Line")]
     public void SpawnLine()
     {
         for (int i = 0; i < 5; i++)
@@ -111,7 +111,7 @@ public class LevelController : MonoBehaviour
         }
     }
     
-    [ContextMenu("SpawnSquare3x3")]
+    [ContextMenu("Spawn 3x3 square")]
     public void SpawnSquare()
     {
         for (int i = 0; i < 9; i++)
@@ -124,7 +124,7 @@ public class LevelController : MonoBehaviour
         }
     }
     
-    [ContextMenu("SpawnStairFlat5")]
+    [ContextMenu("Spawn 5 Walls as Stairs")]
     public void SpawnStairFlat()
     {
         for (int i = 0; i < 5; i++)

@@ -62,7 +62,7 @@ namespace Game
                 var (moveDirection, distance, viewDirection,hasFound) = ZombieInput.CurrentInput();
                 var (moveRockDirection, rockDistance, rockTrans,isThereRocks, isThereReachableRock) = ZombieInput.GetRock();
 
-                switch (getActionName(distance, rockDistance, hasFound, isThereRocks, _botDifficulty, isThereReachableRock))
+                switch (getActionName(distance.magnitude, rockDistance, hasFound, isThereRocks, _botDifficulty, isThereReachableRock, hasRock))
                 {
                     case ActionName.PLAYER:
                         Rigidbody.velocity = moveDirection.normalized * ZombieSpeed;
@@ -94,16 +94,16 @@ namespace Game
 
         public bool IsAlive => _aliveView.activeInHierarchy;
 
-        private ActionName getActionName(Vector3 playerDist, float rockDist, bool foundPlayer, bool rocksExist, BotDifficulty bDiff, bool reachable)
+        public static ActionName getActionName(float playerDist, float rockDist, bool foundPlayer, bool rocksExist, BotDifficulty bDiff, bool reachable, bool hasRock)
         {
             List<int> pointsAc = new List<int> {0, 0, 0, 0, 0};
 
-            pointsAc[0] = (playerDist.magnitude <= 10 ? 50 : 0) + (!rocksExist ? 100 : 0) + (hasRock ? 100: 0) + (!reachable ? 100 : 0);
-            pointsAc[1] = (playerDist.magnitude > 10 ? 150 : 0) + (rockDist <= 10 ? 50 : 0) + (hasRock ? -1000 : 0) +
+            pointsAc[0] = (playerDist <= 10 ? 50 : 0) + (!rocksExist ? 100 : 0) + (hasRock ? 100: 0) + (!reachable ? 100 : 0);
+            pointsAc[1] = (playerDist > 10 ? 150 : 0) + (rockDist <= 10 ? 50 : 0) + (hasRock ? -1000 : 0) +
                           (!rocksExist ? -1000 : 0) + (bDiff == BotDifficulty.HARD ? 0 : -10000) + (!reachable ? -1000 : 0);
             pointsAc[2] = (rockDist < 1f ? 1000 : 0) + (hasRock ? -1000 : 0) + (bDiff == BotDifficulty.HARD ? 0 : -10000) + (!reachable ? -1000 : 0);
-            pointsAc[3] = (playerDist.magnitude < 5 ? 200 : 0) + (hasRock ? 100 : -1000) + (bDiff == BotDifficulty.HARD ? 0 : -10000);
-            pointsAc[4] = (playerDist.magnitude <= 1f ? 1001 : 0) + (bDiff == BotDifficulty.EASY ? -10000 : 0);
+            pointsAc[3] = (playerDist < 5 ? 200 : 0) + (hasRock ? 100 : -1000) + (bDiff == BotDifficulty.HARD ? 0 : -10000);
+            pointsAc[4] = (playerDist <= 1f ? 1001 : 0) + (bDiff == BotDifficulty.EASY ? -10000 : 0);
 
             switch (pointsAc.IndexOf(pointsAc.Max()))
             {
